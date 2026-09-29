@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column,String,Integer,Float,Date,DateTime,Boolean,ForeignKey
+from sqlalchemy import Column,String,Integer,Float,Date,DateTime,Boolean,ForeignKey,Numeric
 
 from app.database import Base
 
@@ -11,7 +11,7 @@ class RecurringTransaction(Base):
     user_id=Column(Integer,ForeignKey("users.id"),nullable=False,index=True)
     category_id=Column(Integer,ForeignKey("categories.id"),nullable=False,index=True)
     type=Column(String(20),nullable=False)
-    amount=Column(Float,nullable=False)
+    amount=Column(Numeric(12,2),nullable=False)
     description=Column(String(255),nullable=False)
     frequency=Column(String(20),nullable=False)
     start_date=Column(Date,nullable=False)

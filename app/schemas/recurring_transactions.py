@@ -1,6 +1,7 @@
 from datetime import date,datetime
 from fastapi import HTTPException
 from typing import Literal
+from decimal import Decimal
 
 from pydantic import BaseModel,Field,ConfigDict,model_validator
 
@@ -10,7 +11,7 @@ Frequency_type=Literal["daily","weekly","monthly","yearly"]
 class CreateRecurringTransaction(BaseModel):
     category_id:int=Field(gt=0)
     type:Transaction_type
-    amount:float=Field(gt=0)
+    amount:Decimal=Field(gt=0)
     description:str=Field(min_length=3,max_length=255)
     frequency:Frequency_type
     start_date:date
@@ -27,7 +28,7 @@ class CreateRecurringTransaction(BaseModel):
 class UpdateRecurringTransaction(BaseModel):
     category_id:int|None=Field(default=None,gt=0)
     type:Transaction_type|None=None
-    amount:float|None=Field(default=None,gt=0)
+    amount:Decimal|None=Field(default=None,gt=0)
     description:str|None=Field(defalut=None,min_length=3,max_length=255)
     frequency:Frequency_type|None=None
     end_date:date|None=None
@@ -38,7 +39,7 @@ class ResponseRecurringTransaction(BaseModel):
     user_id:int
     category_id:int
     type:Transaction_type
-    amount:float
+    amount:Decimal
     description:str
     frequency:Frequency_type
     start_date:date
