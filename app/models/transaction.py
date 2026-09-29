@@ -13,5 +13,8 @@ class Transaction(Base):
     amount=Column(Numeric(12,2),nullable=False)
     description=Column(String(255),nullable=False)
     transaction_date=Column(Date,nullable=False)
+    payment_method=Column(String(30),nullable=True)
+    merchant=Column(String(150),nullable=True)
+    notes=Column(String(500),nullable=True)
+    recurring_transaction_id=Column(Integer,ForeignKey("recurring_transactions.id",ondelete="SET NULL"),nullable=True,index=True)
     created_at=Column(DateTime,default=datetime.now,nullable=False)
-    

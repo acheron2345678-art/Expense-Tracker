@@ -9,7 +9,7 @@ from app.models.user import User
 from app.models.category import Category
 from app.models.transaction import Transaction
 from app.models.recurring_transaction import RecurringTransaction
-
+from app.schemas.transaction import ResponseTransaction
 from app.schemas.recurring_transactions import UpdateRecurringTransaction,CreateRecurringTransaction,ResponseRecurringTransaction
 from app.services.recurring_service import calculate_next_run_date,process_due_recurring_transactions
 from app.security import  get_current_user
@@ -52,6 +52,9 @@ def create_recurring_transaction(
         type=recurring.type,
         amount=recurring.amount,
         description=recurring.description,
+        payment_method=recurring.payment_method,
+        merchant=recurring.merchant,
+        notes=recurring.notes,
         frequency=recurring.frequency,
         start_date=recurring.start_date,
         next_run_date=recurring.start_date,
@@ -71,6 +74,33 @@ def get_recurring_transactions(
     current_user:User=Depends(get_current_user)
 ):
     return(db.query(RecurringTransaction).filter(RecurringTransaction.user_id==current_user.id).all())
+
+@router.get("/{recurring_id}/history",response_model=list[ResponseTransaction])
+def get_recurring_history(
+    recurring_id:int,
+    db:Session=Depends(get_db),
+    current_user:User=Depends(get_current_user)
+):
+    recurring=db.query(
+        RecurringTransaction
+    ).filter(
+        RecurringTransaction.id==recurring_id,
+        RecurringTransaction.user_id==current_user.id
+    ).first()
+
+    if not recurring:
+        raise HTTPException(status_code=404,detail="Recurring Transaction not found")
+
+    transactions=db.query(
+        RecurringTransaction
+    ).filter(
+        Transaction.user_id==current_user.id,
+        Transaction.recurring_transaction_id==recurring.id
+    ).order_by(
+        Transaction.transaction_date.desc()
+    ).all()
+
+    return transactions
 
 @router.get("/{recurring_id}",response_model=ResponseRecurringTransaction)
 def get_recurring_transaction(

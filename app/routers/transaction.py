@@ -1,4 +1,5 @@
 from fastapi import APIRouter,Depends,HTTPException,Query
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from datetime import date
 from typing import Literal
@@ -7,7 +8,7 @@ from app.models.transaction import Transaction
 from app.models.category import Category
 from app.models.user import User
 
-from app.schemas.transaction import CreateTransaction,UpdateTransaction,ResponseTransaction
+from app.schemas.transaction import CreateTransaction,UpdateTransaction,ResponseTransaction,PaymentMethodType
 
 from app.security import get_current_user
 
@@ -33,7 +34,10 @@ def create_transaction(
         type=transaction.type,
         amount=transaction.amount,
         description=transaction.description,
-        transaction_date=transaction.transaction_date
+        transaction_date=transaction.transaction_date,
+        payment_method=transaction.payment_method,
+        merchant=transaction.merchant,
+        notes=transaction.notes
     )
 
     db.add(new_transaction)
@@ -45,6 +49,9 @@ def create_transaction(
 def get_transactions(
     type:Literal["income","expense"]|None=None,
     category_id:int|None=None,
+    payment_method:PaymentMethodType|None=None,
+    merchant:str|None=None,
+    recurring_only:bool|None=None,
     min_amount:float|None=None,
     max_amount:float|None=None,
     start_date:date|None=None,
@@ -63,6 +70,18 @@ def get_transactions(
 
     if category_id is not None:
         query=query.filter(Transaction.category_id==category_id)
+
+    if payment_method is not None:
+        query=query.filter(Transaction.payment_method==payment_method)
+
+    if merchant is not None:
+        query=query.filter(Transaction.merchant.ilike(f"%{merchant}%"))
+
+    if recurring_only is True:
+        query=query.filter(Transaction.recurring_transaction_id.is_not(None))
+
+    elif recurring_only is False:
+        query=query.filter(Transaction.recurring_transaction_id.is_(None))
 
     if min_amount is not None:
         query=query.filter(Transaction.amount>=min_amount)
@@ -93,7 +112,17 @@ def get_transactions(
         )
 
     if search:
-        query=query.filter(Transaction.description.ilike(f"{search}"))
+        search_pattern=f"%{search}%"
+        query=query.filter(
+            or_(
+                Transaction.description.ilike(
+                    search_pattern
+                ),
+                Transaction.merchant.ilike(
+                    search_pattern
+                )
+            )
+        )
 
     sort_columns={
         "amount":Transaction.amount,

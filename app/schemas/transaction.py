@@ -5,12 +5,25 @@ from decimal import Decimal
 
 TransactionType=Literal["income","expense"]
 
+PaymentMethodType=Literal[
+    "cash",
+    "upi",
+    "credit_card",
+    "debit_card",
+    "bank_transfer",
+    "wallet",
+    "other"
+]
+
 class CreateTransaction(BaseModel):
     category_id:int =Field(gt=0)
     type:TransactionType
     amount:Decimal=Field(gt=0)
     description:str=Field(min_length=3,max_length=255)
     transaction_date:date
+    payment_method:PaymentMethodType|None=None
+    merchant:str|None=Field(default=None,max_length=150)
+    notes:str|None=Field(default=None,max_length=500)
     @field_validator("transaction_date")
     @classmethod
     def validate_transaction_date(cls,value):
@@ -24,6 +37,9 @@ class UpdateTransaction(BaseModel):
     amount:Decimal|None=Field(default=None,gt=0)
     description:str|None=Field(default=None,min_length=3,max_length=255)
     transaction_date:date|None=None
+    payment_method:PaymentMethodType|None=None
+    metchant:str|None=Field(default=None,max_length=150)
+    notes:str|None=Field(default=None,max_length=500)
     @field_validator("transaction_date")
     @classmethod
     def validate_transaction_date(cls,value):
@@ -39,6 +55,10 @@ class ResponseTransaction(BaseModel):
     amount:Decimal
     description:str
     transaction_date:date
+    payment_method:PaymentMethodType|None
+    merchant:str|None
+    notes:str|None
+    recurring_transaction_id:int|None
     created_at:datetime
 
     model_config=ConfigDict(from_attributes=True)
