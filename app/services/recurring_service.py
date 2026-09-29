@@ -41,7 +41,7 @@ def process_due_recurring_transactions(
 ):
     today=as_of or date.today()
 
-    query=db.query(RecurringTransaction).filter(RecurringTransaction.is_(True),RecurringTransaction.next_run_date<=today)
+    query=db.query(RecurringTransaction).filter(RecurringTransaction.active.is_(True),RecurringTransaction.next_run_date<=today)
 
     if user_id is not None:
         query=query.filter(RecurringTransaction.user_id==user_id)

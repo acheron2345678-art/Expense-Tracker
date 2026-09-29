@@ -49,7 +49,7 @@ def create_recurring_transaction(
     new_recurring=RecurringTransaction(
         user_id=current_user.id,
         category_id=recurring.category_id,
-        typr=recurring.type,
+        type=recurring.type,
         amount=recurring.amount,
         description=recurring.description,
         frequency=recurring.frequency,
