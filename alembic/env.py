@@ -7,6 +7,8 @@ from app.models.transaction import Transaction
 from app.models.budget import Budget
 from app.models.recurring_transaction import RecurringTransaction
 from app.models.monthly_budget import MonthlyBudget
+from app.models.savings_goal import SavingsGoal
+from app.models.savings_goal_entry import SavingsGoalEntry
 
 from logging.config import fileConfig
 

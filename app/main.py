@@ -12,7 +12,7 @@ from app.schemas.user import CreateUser, UserResponse,TokenResponse
 from app.security import hash_password,verify_password,create_access_token,get_current_user
 from app.scheduler import start_scheduler,stop_scheduler,process_recurring_job
 
-from app.routers import transaction,summary,budget,category,recurring_transactions,analytics
+from app.routers import transaction,summary,budget,category,recurring_transactions,analytics,savings_goals
 
 Base.metadata.create_all(bind=engine)
 
@@ -35,6 +35,7 @@ app.include_router(summary.router)
 app.include_router(budget.router)
 app.include_router(recurring_transactions.router)
 app.include_router(analytics.router)
+app.include_router(savings_goals.router)
 
 @app.get("/")
 def home():
